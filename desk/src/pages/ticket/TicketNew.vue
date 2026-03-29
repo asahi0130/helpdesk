@@ -69,6 +69,15 @@
             :placeholder="__('A short description')"
           />
         </div>
+        <div v-if="!isCustomerPortal" class="flex flex-col gap-2 mt-2">
+          <AssignToBody
+            v-model="assignees"
+            inline
+            :open="true"
+            :auto-focus="false"
+            :title="__('Assignee')"
+          />
+        </div>
         <SearchArticles
           v-if="isCustomerPortal"
           :query="subject"
@@ -133,12 +142,14 @@
 
 <script setup lang="ts">
 import { LayoutHeader, UniInput } from "@/components";
+import AssignToBody from "@/components/ticket-agent/AssignToBody.vue";
 import {
   handleLinkFieldUpdate,
   handleSelectFieldUpdate,
   parseField,
   setupCustomizations,
 } from "@/composables/formCustomisation";
+import { publicTicketViewCounts } from "@/composables/useView";
 import { useAuthStore } from "@/stores/auth";
 import { globalStore } from "@/stores/globalStore";
 import { capture } from "@/telemetry";
@@ -180,6 +191,7 @@ const { isManager, userId: userID } = useAuthStore();
 const subject = ref("");
 const description = ref("");
 const attachments = ref([]);
+const assignees = ref([]);
 const templateFields = reactive({});
 
 const template = createResource({
@@ -258,6 +270,7 @@ const ticket = createResource({
       ...templateFields,
     },
     attachments: attachments.value,
+    assignees: assignees.value.map((assignee) => assignee.name),
   }),
   validate: (params) => {
     const fields = visibleFields.value?.filter((f) => f.required) || [];
@@ -269,6 +282,9 @@ const ticket = createResource({
     }
   },
   onSuccess: (data) => {
+    if (publicTicketViewCounts.params?.view_names?.length) {
+      publicTicketViewCounts.reload();
+    }
     router.push({
       name: isCustomerPortal.value ? "TicketCustomer" : "TicketAgent",
       params: {

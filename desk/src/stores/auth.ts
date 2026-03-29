@@ -15,6 +15,7 @@ const URI_USER_INFO = "helpdesk.api.auth.get_user";
 export const useAuthStore = defineStore("auth", () => {
   const userInfo = createResource({
     url: URI_USER_INFO,
+    method: "GET",
   });
   const init = async () => {
     if (userInfo.fetched) return;

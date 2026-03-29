@@ -394,6 +394,7 @@ export interface View {
   is_default?: boolean;
   pinned?: boolean;
   public?: boolean;
+  count?: number;
   group_by_field?: string;
   name?: string;
   is_customer_portal?: boolean;

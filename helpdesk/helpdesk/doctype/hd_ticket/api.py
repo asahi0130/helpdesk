@@ -3,6 +3,7 @@ from datetime import timedelta
 
 import frappe
 from bs4 import BeautifulSoup
+from frappe.desk.form.assign_to import add as add_assignment
 from frappe import _
 from frappe.model.document import get_controller
 from frappe.utils import (
@@ -31,11 +32,25 @@ from helpdesk.utils import (
 
 @frappe.whitelist()
 # flake8: noqa
-def new(doc: dict, attachments: list[dict] = []):
+def new(doc: dict, attachments: list[dict] = [], assignees: list[str] | None = None):
+    assignees = frappe.parse_json(assignees) or []
+    if assignees and not is_agent():
+        frappe.throw(_("Only agents can assign tickets"), frappe.PermissionError)
+
     doc["doctype"] = "HD Ticket"
     doc["via_customer_portal"] = bool(frappe.session.user)
     doc["attachments"] = attachments
     d = frappe.get_doc(doc).insert()
+
+    for assignee in assignees:
+        add_assignment(
+            {
+                "assign_to": [assignee],
+                "doctype": "HD Ticket",
+                "name": d.name,
+            }
+        )
+
     return d
 
 

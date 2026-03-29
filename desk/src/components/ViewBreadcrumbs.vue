@@ -51,23 +51,29 @@
           </div>
           <div
             v-if="item.name"
-            class="flex flex-row-reverse gap-2 items-center min-w-11"
+            class="flex items-center justify-end gap-2 min-w-11"
           >
-            <Dropdown placement="right-start" :options="dropdownActions(item)">
-              <template #default>
-                <Button
-                  variant="ghost"
-                  class="group-hover:!size-5 !size-0 group-hover:opacity-100 opacity-0 group-hover:ml-0 -ml-2"
-                  icon="more-horizontal"
-                  @click.stop
-                />
-              </template>
-            </Dropdown>
+            <Badge
+              v-if="item.count !== undefined && item.count !== null"
+              :label="item.count"
+              theme="gray"
+              variant="subtle"
+            />
             <FeatherIcon
               v-if="isCurrentView(item)"
               name="check"
               class="size-4 text-ink-gray-7"
             />
+            <Dropdown placement="right-start" :options="dropdownActions(item)">
+              <template #default>
+                <Button
+                  variant="ghost"
+                  class="group-hover:!size-5 !size-0 group-hover:opacity-100 opacity-0"
+                  icon="more-horizontal"
+                  @click.stop
+                />
+              </template>
+            </Dropdown>
           </div>
         </button>
       </template>
@@ -77,7 +83,7 @@
 
 <script setup>
 import { useScreenSize } from "@/composables/screen";
-import { Dropdown } from "frappe-ui";
+import { Badge, Dropdown } from "frappe-ui";
 import { useRoute } from "vue-router";
 
 const props = defineProps({

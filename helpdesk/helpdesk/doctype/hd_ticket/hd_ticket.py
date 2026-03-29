@@ -989,12 +989,6 @@ class HDTicket(Document):
     def default_list_data(show_customer_portal_fields=False):
         columns = [
             {
-                "label": "ID",
-                "type": "Int",
-                "key": "name",
-                "width": "5rem",
-            },
-            {
                 "label": "Subject",
                 "type": "Data",
                 "key": "subject",
@@ -1007,15 +1001,9 @@ class HDTicket(Document):
                 "width": "8rem",
             },
             {
-                "label": "First response",
-                "type": "Datetime",
-                "key": "response_by",
-                "width": "8rem",
-            },
-            {
-                "label": "Resolution",
-                "type": "Datetime",
-                "key": "resolution_by",
+                "label": "Raised By",
+                "type": "Data",
+                "key": "raised_by",
                 "width": "8rem",
             },
             {
@@ -1025,11 +1013,11 @@ class HDTicket(Document):
                 "width": "8rem",
             },
             {
-                "label": "Customer",
+                "label": "Type",
                 "type": "Link",
-                "key": "customer",
-                "options": "HD Customer",
-                "width": "8rem",
+                "options": "HD Ticket Type",
+                "key": "ticket_type",
+                "width": "11rem",
             },
             {
                 "label": "Priority",
@@ -1039,37 +1027,21 @@ class HDTicket(Document):
                 "width": "10rem",
             },
             {
-                "label": "Type",
-                "type": "Link",
-                "options": "HD Ticket Type",
-                "key": "ticket_type",
-                "width": "11rem",
-            },
-            {
-                "label": "Team",
-                "type": "Link",
-                "options": "HD Team",
-                "key": "agent_group",
-                "width": "10rem",
-            },
-            {
-                "label": "Contact",
-                "type": "Link",
-                "key": "contact",
-                "options": "Contact",
+                "label": "Resolution",
+                "type": "Datetime",
+                "key": "resolution_by",
                 "width": "8rem",
             },
             {
-                "label": "Rating",
-                "type": "Rating",
-                "key": "feedback_rating",
-                "width": "10rem",
-            },
-            {
-                "label": "Created",
+                "label": "Creation",
                 "type": "Datetime",
                 "key": "creation",
-                "options": "Contact",
+                "width": "8rem",
+            },
+            {
+                "label": "Modified",
+                "type": "Datetime",
+                "key": "modified",
                 "width": "8rem",
             },
         ]
@@ -1127,21 +1099,15 @@ class HDTicket(Document):
             },
         ]
         rows = [
-            "name",
             "subject",
             "status",
-            "priority",
-            "ticket_type",
-            "agent_group",
-            "contact",
-            "agreement_status",
-            "response_by",
-            "resolution_by",
-            "customer",
-            "first_responded_on",
-            "modified",
-            "creation",
+            "raised_by",
             "_assign",
+            "ticket_type",
+            "priority",
+            "resolution_by",
+            "creation",
+            "modified",
             "resolution_date",
         ]
         return {

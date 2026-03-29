@@ -1,8 +1,13 @@
 <template>
   <div
-    class="flex flex-col gap-2 my-2 w-[470px] rounded-lg bg-surface-modal shadow-2xl ring-1 ring-black p-3 ring-opacity-5 focus:outline-none"
+    class="flex flex-col gap-2"
+    :class="
+      inline
+        ? 'w-full'
+        : 'my-2 w-[470px] rounded-lg bg-surface-modal p-3 shadow-2xl ring-1 ring-black ring-opacity-5 focus:outline-none'
+    "
   >
-    <div class="text-base text-ink-gray-5">{{ __("Assign to") }}</div>
+    <div class="text-base text-ink-gray-5">{{ title || __("Assign to") }}</div>
     <Link
       class="form-control"
       value=""
@@ -89,6 +94,18 @@ const props = defineProps({
   open: {
     type: Boolean,
     default: false,
+  },
+  inline: {
+    type: Boolean,
+    default: false,
+  },
+  title: {
+    type: String,
+    default: "",
+  },
+  autoFocus: {
+    type: Boolean,
+    default: true,
   },
   onUpdate: {
     type: Function,
@@ -227,6 +244,8 @@ const removeAssignees = createResource({
 
 const targetRef = useTemplateRef("input");
 nextTick(() => {
-  targetRef.value.click();
+  if (props.autoFocus) {
+    targetRef.value?.click();
+  }
 });
 </script>

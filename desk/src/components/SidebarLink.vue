@@ -41,13 +41,22 @@
       }"
     >
       {{ __(label) }}
-      <slot name="right" />
+      <div class="flex items-center gap-1">
+        <Badge
+          v-if="badge !== undefined && badge !== null"
+          :label="badge"
+          theme="gray"
+          variant="subtle"
+        />
+        <slot name="right" />
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { useScreenSize } from "@/composables/screen";
+import { Badge } from "frappe-ui";
 import { useRouter } from "vue-router";
 
 interface P {
@@ -57,6 +66,7 @@ interface P {
   isActive?: boolean;
   onClick?: () => void;
   to?: string | object;
+  badge?: string | number | null;
   bgColor?: string;
   hvColor?: string;
 }

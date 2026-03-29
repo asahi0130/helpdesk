@@ -85,6 +85,7 @@ const {
   getCurrentUserViews,
   createView,
   publicViews,
+  publicTicketViewCounts,
   pinnedViews,
   findView,
   updateView,
@@ -480,6 +481,7 @@ function parseViews(views: View[]) {
   return views?.map((view) => {
     return {
       ...view,
+      count: view.count,
       onClick: () => {
         currentView.value = {
           label: view.label,
@@ -572,6 +574,9 @@ onMounted(() => {
   if (!isCustomerPortal.value) {
     $socket.on("helpdesk:new-ticket", () => {
       listViewRef.value?.reload();
+      if (publicTicketViewCounts.params?.view_names?.length) {
+        publicTicketViewCounts.reload();
+      }
     });
   }
 });

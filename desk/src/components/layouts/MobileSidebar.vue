@@ -79,6 +79,7 @@
                   v-for="link in view.views"
                   :icon="link.icon"
                   :label="link.label"
+                  :badge="link.count"
                   :to="link.to"
                   :key="link.label"
                   :is-expanded="true"
@@ -185,6 +186,7 @@ function parseViews(views) {
     return {
       label: view.label,
       icon: view.icon,
+      count: view.count,
       to: {
         name: view.route_name,
         query: { view: view.name },
