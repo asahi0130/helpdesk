@@ -66,6 +66,7 @@ import { StarRating } from "@/components";
 import { createListResource, createResource } from "frappe-ui";
 import { inject, ref, watch } from "vue";
 import { ITicket } from "./symbols";
+import { useView } from "@/composables/useView";
 import { __ } from "@/translation";
 
 interface P {
@@ -79,6 +80,7 @@ interface E {
 defineProps<P>();
 const emit = defineEmits<E>();
 const ticket = inject(ITicket);
+const { loadPublicTicketViewCounts } = useView("HD Ticket");
 const rating = ref(0);
 const text = ref("");
 const preset = ref(null);
@@ -101,6 +103,7 @@ const setValue = createResource({
   onSuccess: () => {
     emit("update:open", false);
     ticket.reload();
+    loadPublicTicketViewCounts(true);
   },
 });
 watch(rating, (r) => {

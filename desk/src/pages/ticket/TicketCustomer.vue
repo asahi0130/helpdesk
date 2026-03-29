@@ -86,6 +86,7 @@ import TicketCustomerSidebar from "@/components/ticket/TicketCustomerSidebar.vue
 import { setupCustomizations } from "@/composables/formCustomisation";
 import { useActiveViewers } from "@/composables/realtime";
 import { useScreenSize } from "@/composables/screen";
+import { useView } from "@/composables/useView";
 import { useConfigStore } from "@/stores/config";
 import { globalStore } from "@/stores/globalStore";
 import { useTicketStatusStore } from "@/stores/ticketStatus";
@@ -160,6 +161,7 @@ const isExpanded = ref(false);
 
 const { isMobileView } = useScreenSize();
 const { $dialog, $socket } = globalStore();
+const { loadPublicTicketViewCounts } = useView("HD Ticket");
 const isDismissed = ref(false);
 
 function getTodayKey() {
@@ -274,6 +276,7 @@ function updateTicket(fieldname: string, value: string) {
     auto: true,
     onSuccess: () => {
       ticket.reload();
+      loadPublicTicketViewCounts(true);
       toast.success(__("Ticket updated"));
     },
   });
@@ -326,6 +329,7 @@ const setValue = createResource({
   onSuccess: () => {
     showFeedbackDialog.value = false;
     ticket.reload();
+    loadPublicTicketViewCounts(true);
   },
 });
 

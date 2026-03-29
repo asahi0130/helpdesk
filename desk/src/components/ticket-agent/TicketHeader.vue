@@ -126,7 +126,7 @@ defineProps({
 
 const route = useRoute();
 const router = useRouter();
-const { findView } = useView("HD Ticket");
+const { findView, loadPublicTicketViewCounts } = useView("HD Ticket");
 const ticketStatusStore = useTicketStatusStore();
 
 const ticket = inject(TicketSymbol);
@@ -150,6 +150,7 @@ const statusDropdown = computed(() => {
         {
           onSuccess() {
             activities.value.reload();
+            loadPublicTicketViewCounts(true);
           },
         }
       );

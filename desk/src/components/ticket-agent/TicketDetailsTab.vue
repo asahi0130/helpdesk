@@ -65,6 +65,7 @@ import { Link } from "@/components";
 import { parseField } from "@/composables/formCustomisation";
 import { useNotifyTicketUpdate } from "@/composables/realtime";
 import { useShortcut } from "@/composables/shortcuts";
+import { useView } from "@/composables/useView";
 import { getMeta } from "@/stores/meta";
 import {
   ActivitiesSymbol,
@@ -77,6 +78,8 @@ import { computed, inject, ref } from "vue";
 import TicketField from "../TicketField.vue";
 import AssignTo from "./AssignTo.vue";
 import TicketContact from "./TicketContact.vue";
+
+const { loadPublicTicketViewCounts } = useView("HD Ticket");
 
 const ticket = inject(TicketSymbol);
 const assignees = inject(AssigneeSymbol);
@@ -181,6 +184,7 @@ function handleFieldUpdate(
           assignees.value.reload();
         }
         activities.value.reload();
+        loadPublicTicketViewCounts(true);
       },
     }
 

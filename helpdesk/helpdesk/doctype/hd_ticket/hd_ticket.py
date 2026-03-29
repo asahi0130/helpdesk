@@ -68,6 +68,7 @@ class HDTicket(Document):
         publish_event(
             "helpdesk:ticket-update", room=room, data={"ticket_id": self.name}
         )
+        publish_event("helpdesk:ticket-list-update", data={"ticket_id": self.name})
 
     def autoname(self):
         return self.name

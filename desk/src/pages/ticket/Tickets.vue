@@ -599,7 +599,7 @@ onMounted(() => {
   }
   if (!isCustomerPortal.value) {
     $socket.on("helpdesk:new-ticket", reloadTicketsAndCounts);
-    $socket.on("helpdesk:ticket-update", reloadTicketsAndCounts);
+    $socket.on("helpdesk:ticket-list-update", reloadTicketsAndCounts);
     $socket.on("helpdesk:ticket-delete", reloadTicketsAndCounts);
   }
 });
@@ -607,7 +607,7 @@ onMounted(() => {
 onUnmounted(() => {
   if (!isCustomerPortal.value) {
     $socket.off("helpdesk:new-ticket", reloadTicketsAndCounts);
-    $socket.off("helpdesk:ticket-update", reloadTicketsAndCounts);
+    $socket.off("helpdesk:ticket-list-update", reloadTicketsAndCounts);
     $socket.off("helpdesk:ticket-delete", reloadTicketsAndCounts);
   }
 });

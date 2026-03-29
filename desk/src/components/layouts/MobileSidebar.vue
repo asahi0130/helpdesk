@@ -261,14 +261,14 @@ onMounted(() => {
   if (isCustomerPortal.value) return;
 
   $socket.on("helpdesk:new-ticket", reloadSidebarCounts);
-  $socket.on("helpdesk:ticket-update", reloadSidebarCounts);
+  $socket.on("helpdesk:ticket-list-update", reloadSidebarCounts);
   $socket.on("helpdesk:ticket-delete", reloadSidebarCounts);
 });
 
 onUnmounted(() => {
   if (isCustomerPortal.value) return;
   $socket.off("helpdesk:new-ticket", reloadSidebarCounts);
-  $socket.off("helpdesk:ticket-update", reloadSidebarCounts);
+  $socket.off("helpdesk:ticket-list-update", reloadSidebarCounts);
   $socket.off("helpdesk:ticket-delete", reloadSidebarCounts);
 });
 </script>

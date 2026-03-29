@@ -235,6 +235,7 @@ import TicketAgentDetails from "@/components/ticket/TicketAgentDetails.vue";
 import TicketAgentFields from "@/components/ticket/TicketAgentFields.vue";
 import { setupCustomizations } from "@/composables/formCustomisation";
 import { useScreenSize } from "@/composables/screen";
+import { useView } from "@/composables/useView";
 import { globalStore } from "@/stores/globalStore";
 import { useTicketStatusStore } from "@/stores/ticketStatus";
 import { useUserStore } from "@/stores/user";
@@ -250,6 +251,7 @@ const { isCallingEnabled } = storeToRefs(telephonyStore);
 
 const ticketStatusStore = useTicketStatusStore();
 const { getUser } = useUserStore();
+const { loadPublicTicketViewCounts } = useView("HD Ticket");
 
 const router = useRouter();
 const ticketAgentActivitiesRef = ref(null);
@@ -495,6 +497,7 @@ function updateTicket(fieldname: string, value: string) {
     onSuccess: () => {
       isLoading.value = false;
       ticket.reload();
+      loadPublicTicketViewCounts(true);
       toast.success(__("Ticket updated"));
     },
   });
