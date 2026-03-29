@@ -398,6 +398,7 @@ export interface View {
   name?: string;
   is_customer_portal?: boolean;
   is_standard?: boolean;
+  count?: number;
 }
 
 export interface ViewType {

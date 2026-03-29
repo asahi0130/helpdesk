@@ -232,6 +232,49 @@ def get_list_data(
 
 
 @frappe.whitelist()
+def get_ticket_view_counts(
+    view_names: list[str] | None = None, is_customer_portal: bool = False
+) -> dict[str, int]:
+    """Return total ticket counts keyed by HD View name."""
+    view_names = frappe.parse_json(view_names or "[]")
+    is_customer_portal = bool(frappe.parse_json(is_customer_portal))
+
+    view_filters = {
+        "dt": "HD Ticket",
+        "is_customer_portal": int(is_customer_portal),
+    }
+    if view_names:
+        view_filters["name"] = ["in", view_names]
+
+    ticket_views = frappe.get_list("HD View", filters=view_filters, fields=["name", "filters"])
+
+    counts = {}
+    for ticket_view in ticket_views:
+        try:
+            filters = frappe.parse_json(ticket_view.get("filters") or "{}") or {}
+
+            if isinstance(filters, dict):
+                filters = handle_at_me_support(filters)
+                filters = handle_assigned_on_filter(filters, "HD Ticket")
+            elif not isinstance(filters, list):
+                filters = {}
+
+            result = frappe.get_list(
+                "HD Ticket",
+                fields=[COUNT_NAME],
+                filters=filters,
+                page_length=1,
+            )
+            counts[ticket_view.name] = (
+                (result[0] if result else {}).get("count", 0) if result is not None else 0
+            )
+        except Exception:
+            counts[ticket_view.name] = 0
+
+    return counts
+
+
+@frappe.whitelist()
 @redis_cache()
 def get_filterable_fields(
     doctype: str,

@@ -37,6 +37,32 @@ export const currentView = ref({
 export function useView(dt: string = null) {
   const auth = useAuthStore();
   const router = useRouter();
+  const ticketViewCounts = ref<Record<string, number>>({});
+
+  const ticketViewCountResource = createResource({
+    url: "helpdesk.api.doc.get_ticket_view_counts",
+    auto: false,
+  });
+
+  async function fetchTicketViewCounts() {
+    const ticketViewNames =
+      views.data
+        ?.filter((view: View) => view.dt === "HD Ticket")
+        .map((view: View) => view.name)
+        .filter(Boolean) || [];
+
+    if (!ticketViewNames.length) {
+      ticketViewCounts.value = {};
+      return;
+    }
+
+    const counts = await ticketViewCountResource.submit({
+      view_names: ticketViewNames,
+      is_customer_portal: isCustomerPortal.value,
+    });
+    ticketViewCounts.value = counts || {};
+  }
+
   function callGetViews() {
     if (
       (views.filters?.dt === dt && views.data?.length > 0) ||
@@ -56,7 +82,7 @@ export function useView(dt: string = null) {
     }
     views.isCustomerPortal = isCustomerPortal.value;
     views.update({ filters });
-    views.fetch();
+    views.fetch().then(fetchTicketViewCounts);
   }
   callGetViews();
 
@@ -168,6 +194,8 @@ export function useView(dt: string = null) {
       name: view.name,
       icon: getIcon(view.icon),
       route_name: view.route_name,
+      count:
+        view.dt === "HD Ticket" ? ticketViewCounts.value[view.name] ?? 0 : undefined,
       is_standard: view.is_standard || false,
       onClick: () => {
         router.push({
@@ -186,6 +214,14 @@ export function useView(dt: string = null) {
       views.isCustomerPortal = newVal;
       callGetViews();
     }
+  );
+
+  watch(
+    () => views.data,
+    () => {
+      fetchTicketViewCounts();
+    },
+    { deep: true }
   );
 
   return {

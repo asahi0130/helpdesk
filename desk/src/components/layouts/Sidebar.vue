@@ -92,7 +92,16 @@
               :is-active="isActiveTab(link.to)"
               class="my-0.5 emoji"
               :onClick="link.onClick"
-            />
+            >
+              <template #right>
+                <Badge
+                  v-if="isExpanded && link.showCount && typeof link.count === 'number'"
+                  :label="link.count > 999 ? '999+' : link.count"
+                  theme="gray"
+                  variant="subtle"
+                />
+              </template>
+            </SidebarLink>
           </nav>
         </Section>
       </div>
@@ -267,7 +276,7 @@ const allViews = computed(() => {
       label: __("Public Views"),
       opened: true,
       hideLabel: false,
-      views: parseViews(publicViews.value),
+      views: parseViews(publicViews.value, true),
     });
   }
   if (pinnedViews.value?.length) {
@@ -281,11 +290,13 @@ const allViews = computed(() => {
   return options;
 });
 
-function parseViews(views) {
+function parseViews(views, showCount = false) {
   return views.map((view) => {
     return {
       label: view.label,
       icon: view.icon,
+      count: view.count,
+      showCount,
       to: {
         name: view.route_name,
         query: { view: view.name },

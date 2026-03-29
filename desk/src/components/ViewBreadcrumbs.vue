@@ -49,6 +49,12 @@
               {{ item.label }}
             </span>
             <Badge
+              v-if="typeof item.count === 'number'"
+              class="ml-1"
+              size="sm"
+              :label="item.count > 999 ? '999+' : item.count"
+            />
+            <Badge
               v-if="item.is_standard"
               class="ml-1"
               size="sm"
