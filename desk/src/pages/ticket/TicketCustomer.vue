@@ -350,20 +350,22 @@ const showFeedback = computed(() => {
 });
 const { startViewing, stopViewing } = useActiveViewers(props.ticketId);
 
+const handleTicketUpdate = ({ ticket_id }) => {
+  if (ticket_id == props.ticketId) {
+    ticket.reload();
+  }
+};
+
 onMounted(() => {
   startViewing(props.ticketId);
   document.title = props.ticketId;
 
-  $socket.on("helpdesk:ticket-update", ({ ticket_id }) => {
-    if (ticket_id == props.ticketId) {
-      ticket.reload();
-    }
-  });
+  $socket.on("helpdesk:ticket-update", handleTicketUpdate);
 });
 
 onUnmounted(() => {
   stopViewing(props.ticketId);
   document.title = "Helpdesk";
-  $socket.off("helpdesk:ticket-update");
+  $socket.off("helpdesk:ticket-update", handleTicketUpdate);
 });
 </script>

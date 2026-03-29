@@ -585,6 +585,11 @@ function resetState() {
   selectedView = null;
 }
 
+const reloadTicketsAndCounts = () => {
+  listViewRef.value?.reload();
+  loadPublicTicketViewCounts(true);
+};
+
 onMounted(() => {
   if (!route.query.view) {
     currentView.value = {
@@ -593,11 +598,6 @@ onMounted(() => {
     };
   }
   if (!isCustomerPortal.value) {
-    const reloadTicketsAndCounts = () => {
-      listViewRef.value?.reload();
-      loadPublicTicketViewCounts(true);
-    };
-
     $socket.on("helpdesk:new-ticket", reloadTicketsAndCounts);
     $socket.on("helpdesk:ticket-update", reloadTicketsAndCounts);
     $socket.on("helpdesk:ticket-delete", reloadTicketsAndCounts);
@@ -606,9 +606,9 @@ onMounted(() => {
 
 onUnmounted(() => {
   if (!isCustomerPortal.value) {
-    $socket.off("helpdesk:new-ticket");
-    $socket.off("helpdesk:ticket-update");
-    $socket.off("helpdesk:ticket-delete");
+    $socket.off("helpdesk:new-ticket", reloadTicketsAndCounts);
+    $socket.off("helpdesk:ticket-update", reloadTicketsAndCounts);
+    $socket.off("helpdesk:ticket-delete", reloadTicketsAndCounts);
   }
 });
 

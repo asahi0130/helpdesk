@@ -126,6 +126,24 @@ type TicketUpdateData = {
   value: string;
 };
 
+const handleTicketUpdateNotice = (data: TicketUpdateData) => {
+  if (data.ticket_id === ticket.value?.name) {
+    toast.info(`User ${data.user} updated ${data.field} to ${data.value}`);
+  }
+};
+
+const handleTicketCommentUpdate = (data: { ticket_id: string }) => {
+  if (data.ticket_id == props.ticketId) {
+    ticketComposable.value.activities.reload();
+  }
+};
+
+const handleTicketDocUpdate = (data: { ticket_id: string }) => {
+  if (data.ticket_id == props.ticketId) {
+    reloadTicket(props.ticketId);
+  }
+};
+
 onMounted(() => {
   ticketsToNavigate.update({
     params: {
@@ -136,24 +154,9 @@ onMounted(() => {
   ticketsToNavigate.reload();
   ticket.value.markSeen.reload();
 
-  $socket.on("ticket_update", (data: TicketUpdateData) => {
-    if (data.ticket_id === ticket.value?.name) {
-      // Notify the user about the update
-      toast.info(`User ${data.user} updated ${data.field} to ${data.value}`);
-    }
-  });
-
-  $socket.on("helpdesk:ticket-comment", (data: { ticket_id: string }) => {
-    if (data.ticket_id == props.ticketId) {
-      ticketComposable.value.activities.reload();
-    }
-  });
-
-  $socket.on("helpdesk:ticket-update", (data: { ticket_id: string }) => {
-    if (data.ticket_id == props.ticketId) {
-      reloadTicket(props.ticketId);
-    }
-  });
+  $socket.on("ticket_update", handleTicketUpdateNotice);
+  $socket.on("helpdesk:ticket-comment", handleTicketCommentUpdate);
+  $socket.on("helpdesk:ticket-update", handleTicketDocUpdate);
 });
 
 onBeforeUnmount(() => {
@@ -161,9 +164,9 @@ onBeforeUnmount(() => {
   showEmailBox.value = false;
   showCommentBox.value = false;
 
-  $socket.off("ticket_update");
-  $socket.off("helpdesk:ticket-comment");
-  $socket.off("helpdesk:ticket-update");
+  $socket.off("ticket_update", handleTicketUpdateNotice);
+  $socket.off("helpdesk:ticket-comment", handleTicketCommentUpdate);
+  $socket.off("helpdesk:ticket-update", handleTicketDocUpdate);
 });
 
 usePageMeta(() => {

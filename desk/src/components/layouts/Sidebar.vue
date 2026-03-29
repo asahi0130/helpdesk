@@ -183,6 +183,7 @@ import {
   showEmailBox,
 } from "@/pages/ticket/modalStates";
 import { useAuthStore } from "@/stores/auth";
+import { globalStore } from "@/stores/globalStore";
 import { useNotificationStore } from "@/stores/notification";
 import { useSidebarStore } from "@/stores/sidebar";
 import { capture } from "@/telemetry";
@@ -200,7 +201,7 @@ import {
 
 import { HelpIcon } from "frappe-ui/icons";
 import { storeToRefs } from "pinia";
-import { computed, h, markRaw, onMounted, ref } from "vue";
+import { computed, h, markRaw, onMounted, onUnmounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import {
   agentPortalSidebarOptions,
@@ -235,6 +236,7 @@ const { isMobileView } = useScreenSize();
 const route = useRoute();
 const router = useRouter();
 const authStore = useAuthStore();
+const { $socket } = globalStore();
 const notificationStore = useNotificationStore();
 const { isExpanded, width } = storeToRefs(useSidebarStore());
 const device = useDevice();
@@ -244,7 +246,7 @@ const { isCallingEnabled } = storeToRefs(telephonyStore);
 const showShortcutsModal = ref(false);
 const showCommandPalette = ref(false);
 
-const { pinnedViews, publicViews } = useView();
+const { pinnedViews, publicViews, loadPublicTicketViewCounts } = useView();
 
 const isFCSite = ref(window.is_fc_site);
 
@@ -395,6 +397,10 @@ const showOnboardingBanner = computed(() => {
     authStore.isManager
   );
 });
+
+const reloadSidebarCounts = () => {
+  loadPublicTicketViewCounts(true);
+};
 
 const steps = [
   {
@@ -650,8 +656,20 @@ function setUpOnboarding() {
 onMounted(() => {
   setUpOnboarding();
   if (isCustomerPortal.value) return;
+
+  $socket.on("helpdesk:new-ticket", reloadSidebarCounts);
+  $socket.on("helpdesk:ticket-update", reloadSidebarCounts);
+  $socket.on("helpdesk:ticket-delete", reloadSidebarCounts);
+
   useShortcut({ key: ",", meta: true }, () => {
     showSettingsModal.value = !showSettingsModal.value;
   });
+});
+
+onUnmounted(() => {
+  if (isCustomerPortal.value) return;
+  $socket.off("helpdesk:new-ticket", reloadSidebarCounts);
+  $socket.off("helpdesk:ticket-update", reloadSidebarCounts);
+  $socket.off("helpdesk:ticket-delete", reloadSidebarCounts);
 });
 </script>

@@ -114,12 +114,13 @@ import {
   TransitionChild,
   TransitionRoot,
 } from "@headlessui/vue";
-import { computed, markRaw, onMounted } from "vue";
+import { computed, markRaw, onMounted, onUnmounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
 import { Section } from "@/components";
 import SidebarLink from "@/components/SidebarLink.vue";
 import UserMenu from "@/components/UserMenu.vue";
+import { globalStore } from "@/stores/globalStore";
 import { useNotificationStore } from "@/stores/notification";
 
 import { mobileSidebarOpened as sidebarOpened } from "@/composables/mobile";
@@ -137,9 +138,10 @@ import {
 } from "./layoutSettings";
 import { useTelephonyStore } from "@/stores/telephony";
 import { storeToRefs } from "pinia";
-const { pinnedViews, publicViews } = useView();
+const { pinnedViews, publicViews, loadPublicTicketViewCounts } = useView();
 
 const notificationStore = useNotificationStore();
+const { $socket } = globalStore();
 const route = useRoute();
 const router = useRouter();
 const authStore = useAuthStore();
@@ -250,6 +252,25 @@ function isActiveTab(to: string) {
   }
   return route.name === to;
 }
+
+const reloadSidebarCounts = () => {
+  loadPublicTicketViewCounts(true);
+};
+
+onMounted(() => {
+  if (isCustomerPortal.value) return;
+
+  $socket.on("helpdesk:new-ticket", reloadSidebarCounts);
+  $socket.on("helpdesk:ticket-update", reloadSidebarCounts);
+  $socket.on("helpdesk:ticket-delete", reloadSidebarCounts);
+});
+
+onUnmounted(() => {
+  if (isCustomerPortal.value) return;
+  $socket.off("helpdesk:new-ticket", reloadSidebarCounts);
+  $socket.off("helpdesk:ticket-update", reloadSidebarCounts);
+  $socket.off("helpdesk:ticket-delete", reloadSidebarCounts);
+});
 </script>
 
 <style scoped></style>
