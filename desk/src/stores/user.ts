@@ -15,7 +15,8 @@ export const useUserStore = defineStore("user", () => {
     initialData: [],
     transform(users) {
       for (const user of users) {
-        user.full_name = formatFullName(user.email);
+        user.full_name = user.full_name || formatFullName(user.email);
+        user.username = user.username || "";
         usersByName[user.name] = user;
       }
       return users;
@@ -38,6 +39,7 @@ export const useUserStore = defineStore("user", () => {
         name: email,
         email: email,
         full_name: formatFullName(email),
+        username: "",
         user_image: null,
         role: null,
       };

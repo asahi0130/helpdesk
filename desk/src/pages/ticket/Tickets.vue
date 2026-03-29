@@ -71,6 +71,7 @@ import { dayjs } from "@/dayjs";
 import { useAuthStore } from "@/stores/auth";
 import { globalStore } from "@/stores/globalStore";
 import { useTicketStatusStore } from "@/stores/ticketStatus";
+import { useUserStore } from "@/stores/user";
 import { __ } from "@/translation";
 import { View } from "@/types";
 import { getIcon, isCustomerPortal } from "@/utils";
@@ -94,6 +95,7 @@ const {
 
 const { $dialog, $socket } = globalStore();
 const { isManager, userId } = useAuthStore();
+const { getUser } = useUserStore();
 
 const listViewRef = ref(null);
 const showExportModal = ref(false);
@@ -114,7 +116,8 @@ const selectBannerActions = [
 
 function formatRaisedBy(value: string) {
   if (!value) return "";
-  return value.includes("@") ? value.split("@")[0] : value;
+  const user = getUser(value);
+  return user?.username || (value.includes("@") ? value.split("@")[0] : value);
 }
 
 const options = {
@@ -178,6 +181,7 @@ const options = {
     },
   },
   isCustomerPortal: isCustomerPortal.value,
+  disableCellFilters: true,
   selectable: true,
   showSelectBanner: true,
   selectBannerActions,

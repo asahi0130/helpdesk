@@ -187,6 +187,7 @@ interface P {
     selectBannerActions?: Record<string, any>;
     default_page_length?: number;
     isCustomerPortal?: boolean;
+    disableCellFilters?: boolean;
     rowRoute?: Record<string, string>;
   };
 }
@@ -487,6 +488,14 @@ function listCell(column: any, row: any, item: any, idx: number) {
 }
 
 function handleFieldClick(e: MouseEvent, column, row, item) {
+  if (options.value.disableCellFilters) {
+    if (options.value.rowRoute?.name !== "") {
+      return;
+    }
+    emit("rowClick", row.name);
+    return;
+  }
+
   const noFilterFields = ["Data", "Datetime", "Rating", "Int", "Float"];
   if (noFilterFields.includes(column.type)) {
     if (options.value.rowRoute?.name !== "") {
