@@ -85,7 +85,7 @@ const {
   getCurrentUserViews,
   createView,
   publicViews,
-  publicTicketViewCounts,
+  loadPublicTicketViewCounts,
   pinnedViews,
   findView,
   updateView,
@@ -574,9 +574,7 @@ onMounted(() => {
   if (!isCustomerPortal.value) {
     $socket.on("helpdesk:new-ticket", () => {
       listViewRef.value?.reload();
-      if (publicTicketViewCounts.params?.view_names?.length) {
-        publicTicketViewCounts.reload();
-      }
+      loadPublicTicketViewCounts(true);
     });
   }
 });

@@ -149,7 +149,7 @@ import {
   parseField,
   setupCustomizations,
 } from "@/composables/formCustomisation";
-import { publicTicketViewCounts } from "@/composables/useView";
+import { loadPublicTicketViewCounts } from "@/composables/useView";
 import { useAuthStore } from "@/stores/auth";
 import { globalStore } from "@/stores/globalStore";
 import { capture } from "@/telemetry";
@@ -282,9 +282,7 @@ const ticket = createResource({
     }
   },
   onSuccess: (data) => {
-    if (publicTicketViewCounts.params?.view_names?.length) {
-      publicTicketViewCounts.reload();
-    }
+    loadPublicTicketViewCounts(true);
     router.push({
       name: isCustomerPortal.value ? "TicketCustomer" : "TicketAgent",
       params: {

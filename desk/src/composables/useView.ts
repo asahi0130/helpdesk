@@ -23,49 +23,80 @@ export const currentView = ref({
   icon: LucideAlignJustify,
 });
 
-export const publicTicketViewCounts = createResource<Record<string, number>>({
-  url: "helpdesk.helpdesk.doctype.hd_view.api.get_ticket_view_counts",
-  initialData: {},
-});
+export const publicTicketViewCounts = ref<Record<string, number>>({});
 
 let publicTicketViewCountKey = "";
+let publicTicketViewCountsFetched = false;
+let publicTicketViewCountPromise: Promise<Record<string, number>> | null = null;
+
+export async function loadPublicTicketViewCounts(force = false) {
+  if (isCustomerPortal.value) {
+    publicTicketViewCountKey = "";
+    publicTicketViewCountsFetched = false;
+    publicTicketViewCounts.value = {};
+    return publicTicketViewCounts.value;
+  }
+
+  const ticketViews =
+    views.data?.filter((view: View) => view.public && view.dt === "HD Ticket") || [];
+  const key = JSON.stringify(
+    ticketViews.map((view: View) => ({
+      name: view.name,
+      filters: view.filters || {},
+    }))
+  );
+
+  if (!force && publicTicketViewCountKey === key && publicTicketViewCountsFetched) {
+    return publicTicketViewCounts.value;
+  }
+
+  publicTicketViewCountKey = key;
+
+  if (!ticketViews.length) {
+    publicTicketViewCountsFetched = true;
+    publicTicketViewCounts.value = {};
+    return publicTicketViewCounts.value;
+  }
+
+  if (!force && publicTicketViewCountPromise) {
+    return publicTicketViewCountPromise;
+  }
+
+  publicTicketViewCountPromise = Promise.all(
+    ticketViews.map(async (view: View) => {
+      const response = await call("helpdesk.api.doc.get_list_data", {
+        doctype: "HD Ticket",
+        filters: view.filters || {},
+        page_length: 1,
+        columns: [],
+        rows: [],
+        show_customer_portal_fields: false,
+        is_default: false,
+      });
+
+      return [view.name, response?.total_count ?? 0] as const;
+    })
+  )
+    .then((counts) => {
+      publicTicketViewCountsFetched = true;
+      publicTicketViewCounts.value = Object.fromEntries(counts);
+      return publicTicketViewCounts.value;
+    })
+    .catch(() => {
+      publicTicketViewCountsFetched = false;
+      publicTicketViewCounts.value = {};
+      return publicTicketViewCounts.value;
+    })
+    .finally(() => {
+      publicTicketViewCountPromise = null;
+    });
+
+  return publicTicketViewCountPromise;
+}
 
 export function useView(dt: string = null) {
   const auth = useAuthStore();
   const router = useRouter();
-
-  function loadPublicTicketViewCounts(force = false) {
-    if (isCustomerPortal.value) {
-      publicTicketViewCountKey = "";
-      publicTicketViewCounts.setData({});
-      return;
-    }
-
-    const viewNames =
-      views.data
-        ?.filter((view: View) => view.public && view.dt === "HD Ticket")
-        .map((view: View) => view.name)
-        .filter(Boolean) || [];
-
-    const key = JSON.stringify(viewNames);
-    if (!force && publicTicketViewCountKey === key && publicTicketViewCounts.fetched) {
-      return;
-    }
-
-    publicTicketViewCountKey = key;
-
-    if (!viewNames.length) {
-      publicTicketViewCounts.setData({});
-      return;
-    }
-
-    publicTicketViewCounts.update({
-      params: {
-        view_names: viewNames,
-      },
-    });
-    publicTicketViewCounts.fetch();
-  }
 
   function callGetViews() {
     if (
@@ -148,7 +179,7 @@ export function useView(dt: string = null) {
           ...view,
           count:
             view.dt === "HD Ticket"
-              ? publicTicketViewCounts.data?.[view.name] ?? 0
+              ? publicTicketViewCounts.value?.[view.name] ?? 0
               : undefined,
         })
       )
@@ -244,8 +275,8 @@ export function useView(dt: string = null) {
     () =>
       views.data
         ?.filter((view: View) => view.public && view.dt === "HD Ticket")
-        .map((view: View) => view.name)
-        .join(","),
+        .map((view: View) => JSON.stringify([view.name, view.filters || {}]))
+        .join("|"),
     () => loadPublicTicketViewCounts(true)
   );
 
@@ -255,6 +286,7 @@ export function useView(dt: string = null) {
     pinnedViews,
     publicViews,
     publicTicketViewCounts,
+    loadPublicTicketViewCounts,
     defaultView,
     findView,
     createView,
