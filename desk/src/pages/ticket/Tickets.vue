@@ -112,6 +112,11 @@ const selectBannerActions = [
   },
 ];
 
+function formatRaisedBy(value: string) {
+  if (!value) return "";
+  return value.includes("@") ? value.split("@")[0] : value;
+}
+
 const options = {
   doctype: "HD Ticket",
   columnConfig: {
@@ -141,6 +146,18 @@ const options = {
             h(IndicatorIcon, { class: status?.["parsed_color"] }),
             h("span", { class: "truncate flex-1" }, label),
           ]
+        );
+      },
+    },
+    raised_by: {
+      label: __("Raised By"),
+      custom: ({ item }) => {
+        return h(
+          "span",
+          {
+            class: "truncate flex-1",
+          },
+          formatRaisedBy(item)
         );
       },
     },

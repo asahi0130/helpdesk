@@ -401,6 +401,7 @@ function handleColumnConfig(column) {
   const columnConfig = options.value.columnConfig;
   if (!columnConfig.hasOwnProperty(column.key)) return column;
   column.prefix = columnConfig[column.key]?.prefix;
+  column.label = columnConfig[column.key]?.label || column.label;
 
   return column;
 }

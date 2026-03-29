@@ -90,7 +90,7 @@
    "fieldtype": "Data",
    "in_global_search": 1,
    "in_list_view": 1,
-   "label": "Raised By (Email)",
+   "label": "Raised By",
    "oldfieldname": "raised_by",
    "oldfieldtype": "Data",
    "options": "Email"
