@@ -593,16 +593,22 @@ onMounted(() => {
     };
   }
   if (!isCustomerPortal.value) {
-    $socket.on("helpdesk:new-ticket", () => {
+    const reloadTicketsAndCounts = () => {
       listViewRef.value?.reload();
       loadPublicTicketViewCounts(true);
-    });
+    };
+
+    $socket.on("helpdesk:new-ticket", reloadTicketsAndCounts);
+    $socket.on("helpdesk:ticket-update", reloadTicketsAndCounts);
+    $socket.on("helpdesk:ticket-delete", reloadTicketsAndCounts);
   }
 });
 
 onUnmounted(() => {
   if (!isCustomerPortal.value) {
     $socket.off("helpdesk:new-ticket");
+    $socket.off("helpdesk:ticket-update");
+    $socket.off("helpdesk:ticket-delete");
   }
 });
 
