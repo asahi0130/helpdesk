@@ -1,4 +1,4 @@
-import { socket } from "@/socket";
+import { initSocket } from "@/socket";
 import { createResource } from "frappe-ui";
 import { defineStore } from "pinia";
 import { computed, ComputedRef } from "vue";
@@ -36,7 +36,7 @@ export const useConfigStore = defineStore("config", () => {
     () => !!parseInt(config.value.enable_comment_reactions)
   );
 
-  socket.on("helpdesk:settings-updated", () => configResource.reload());
+  initSocket().on("helpdesk:settings-updated", () => configResource.reload());
 
   return {
     configResource,

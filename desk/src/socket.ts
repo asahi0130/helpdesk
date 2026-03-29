@@ -1,5 +1,7 @@
 import { io } from "socket.io-client";
 
+let socketInstance = null;
+
 declare global {
   interface Window {
     site_name: string;
@@ -8,6 +10,10 @@ declare global {
 }
 
 export function initSocket() {
+  if (socketInstance) {
+    return socketInstance;
+  }
+
   const host = window.location.hostname;
   const siteName = window.site_name || host;
 
@@ -22,10 +28,10 @@ export function initSocket() {
   const protocol = port ? "http" : "https";
   const url = `${protocol}://${host}${port}/${siteName}`;
 
-  return io(url, {
+  socketInstance = io(url, {
     withCredentials: true,
     reconnectionAttempts: 5,
   });
-}
 
-export const socket = initSocket();
+  return socketInstance;
+}

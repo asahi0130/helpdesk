@@ -86,7 +86,7 @@ export function useView(dt: string = null) {
     }
     views.isCustomerPortal = isCustomerPortal.value;
     views.update({ filters });
-    views.fetch().then(() => loadPublicTicketViewCounts(true));
+    views.fetch();
   }
   callGetViews();
   loadPublicTicketViewCounts();

@@ -66,9 +66,6 @@ const app = createApp(App);
 
 app.use(FrappeUI);
 app.use(pinia);
-app.use(router);
-app.use(translationPlugin);
-app.use(telemetryPlugin, { app_name: "helpdesk" });
 
 for (const c in globalComponents) {
   app.component(c, globalComponents[c]);
@@ -76,20 +73,42 @@ for (const c in globalComponents) {
 
 app.config.globalProperties.$dialog = createDialog;
 
-let socket;
-if (import.meta.env.DEV) {
-  frappeRequest({
-    url: "/api/method/helpdesk.www.helpdesk.index.get_context_for_dev",
-  }).then((values) => {
-    for (let key in values) {
-      window[key] = values[key];
-    }
-    socket = initSocket();
-    app.config.globalProperties.$socket = socket;
-    app.mount("#app");
-  });
-} else {
-  socket = initSocket();
+function bootstrapApp() {
+  app.use(translationPlugin);
+  app.use(telemetryPlugin, { app_name: "helpdesk" });
+  app.use(router);
+
+  const socket = initSocket();
   app.config.globalProperties.$socket = socket;
   app.mount("#app");
+}
+
+async function loadDevBootData() {
+  const response = await fetch("/__helpdesk_boot", {
+    credentials: "include",
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to load boot data: ${response.status}`);
+  }
+
+  const html = await response.text();
+  const matches = html.matchAll(
+    /window\["([^"]+)"\]\s*=\s*([\s\S]*?);/g
+  );
+
+  for (const [, key, rawValue] of matches) {
+    try {
+      window[key] = JSON.parse(rawValue);
+    } catch {
+      // Ignore values that are not valid JSON literals.
+    }
+  }
+}
+
+if (import.meta.env.DEV) {
+  loadDevBootData().then(() => {
+    bootstrapApp();
+  });
+} else {
+  bootstrapApp();
 }

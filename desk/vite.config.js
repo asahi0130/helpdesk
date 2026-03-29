@@ -79,6 +79,17 @@ export default defineConfig({
   ],
   server: {
     allowedHosts: true,
+    proxy: {
+      "^/__helpdesk_boot$": {
+        target: "http://127.0.0.1:8000",
+        changeOrigin: true,
+        rewrite: () => "/helpdesk",
+        router(req) {
+          const siteName = req.headers.host.split(":")[0];
+          return `http://${siteName}:8000`;
+        },
+      },
+    },
   },
   resolve: {
     alias: {

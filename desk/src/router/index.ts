@@ -1,9 +1,7 @@
-import { useScreenSize } from "@/composables/screen";
 import { useAuthStore } from "@/stores/auth";
 import { useUserStore } from "@/stores/user";
 import { isCustomerPortal } from "@/utils";
 import { createRouter, createWebHistory } from "vue-router";
-const { isMobileView } = useScreenSize();
 
 export const LOGIN_PAGE = "/login";
 
@@ -184,7 +182,9 @@ const routes = [
 ];
 
 const handleMobileView = (componentName) => {
-  return isMobileView.value ? `Mobile${componentName}` : componentName;
+  return window.innerWidth < 640
+    ? `Mobile${componentName}`
+    : componentName;
 };
 
 export const router = createRouter({
