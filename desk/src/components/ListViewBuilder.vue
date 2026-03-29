@@ -254,6 +254,9 @@ function handleBulkDelete(hide: Function, selections: Set<string>) {
     items: JSON.stringify(Array.from(selections)),
     doctype: props.options.doctype,
   }).then(() => {
+    if (props.options.doctype === "HD Ticket") {
+      loadPublicTicketViewCounts(true);
+    }
     toast.success(__("Item(s) deleted successfully"));
     hide();
     reset();
@@ -629,7 +632,8 @@ function handleViewUpdate() {
   });
 }
 
-const { findView, updateView, defaultView } = useView(options.value.doctype);
+const { findView, updateView, defaultView, loadPublicTicketViewCounts } =
+  useView(options.value.doctype);
 
 const canSaveView = computed(() => {
   let currentView: View = findView(route.query.view as string).value;

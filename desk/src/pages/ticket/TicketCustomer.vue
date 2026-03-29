@@ -138,7 +138,7 @@ const ticket = createResource({
     data.status = getStatus(data.status)?.label_customer;
     setupCustomizations(ticket, {
       doc: data,
-      call,
+      call: callWithTicketBadgeRefresh,
       router,
       toast,
       $dialog,
@@ -255,6 +255,19 @@ const send = createResource({
 function updateField(name, value, callback = () => {}) {
   updateTicket(name, value);
   callback();
+}
+
+async function callWithTicketBadgeRefresh(method: string, params?: any) {
+  const result = await call(method, params);
+
+  if (
+    params?.doctype === "HD Ticket" &&
+    ["frappe.client.delete", "frappe.client.set_value"].includes(method)
+  ) {
+    loadPublicTicketViewCounts(true);
+  }
+
+  return result;
 }
 
 function sendEmail() {

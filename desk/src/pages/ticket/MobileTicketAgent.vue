@@ -309,7 +309,7 @@ const ticket = createResource({
     subjectInput.value = ticket.subject;
     setupCustomizations(ticket, {
       doc: data,
-      call,
+      call: callWithTicketBadgeRefresh,
       router,
       toast,
       $dialog,
@@ -325,6 +325,19 @@ provide("onCallEnded", () => ticket.reload());
 function updateField(name: string, value: string, callback = () => {}) {
   updateTicket(name, value);
   callback();
+}
+
+async function callWithTicketBadgeRefresh(method: string, params?: any) {
+  const result = await call(method, params);
+
+  if (
+    params?.doctype === "HD Ticket" &&
+    ["frappe.client.delete", "frappe.client.set_value"].includes(method)
+  ) {
+    loadPublicTicketViewCounts(true);
+  }
+
+  return result;
 }
 
 const breadcrumbs = computed(() => {

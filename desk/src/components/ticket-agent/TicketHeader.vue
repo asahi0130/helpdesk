@@ -250,9 +250,22 @@ const groupedActions = computed(() => {
   return _actions;
 });
 
+async function callWithTicketBadgeRefresh(method: string, params?: any) {
+  const result = await call(method, params);
+
+  if (
+    params?.doctype === "HD Ticket" &&
+    ["frappe.client.delete", "frappe.client.set_value"].includes(method)
+  ) {
+    loadPublicTicketViewCounts(true);
+  }
+
+  return result;
+}
+
 const customizationCtx = computed(() => ({
   doc: ticket?.value?.doc,
-  call,
+  call: callWithTicketBadgeRefresh,
   router,
   toast,
   $dialog: globalStore().$dialog,
