@@ -77,6 +77,7 @@
 <script setup>
 import UserAvatar from "@/components/UserAvatar.vue";
 import Link from "@/components/frappe-ui/Link.vue";
+import { useView } from "@/composables/useView";
 import { useUserStore } from "@/stores/user";
 import { capture } from "@/telemetry";
 import { Tooltip, Switch, createResource, call } from "frappe-ui";
@@ -120,6 +121,7 @@ const assignToMe = ref(false);
 const error = ref("");
 
 const { users, getUser } = useUserStore();
+const { loadPublicTicketViewCounts } = useView("HD Ticket");
 
 const removeValue = (value) => {
   if (value === getUser("").name) {
@@ -205,7 +207,7 @@ async function updateAssignees() {
     });
   }
   if (props.onUpdate) {
-    props.onUpdate(
+    await props.onUpdate(
       addedAssignees,
       removedAssignees,
       addAssignees,
@@ -218,6 +220,10 @@ async function updateAssignees() {
     if (addedAssignees.length) {
       await addAssignees.submit(addedAssignees);
     }
+  }
+
+  if (props.doctype === "HD Ticket") {
+    loadPublicTicketViewCounts(true);
   }
 }
 

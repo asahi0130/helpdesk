@@ -81,6 +81,7 @@
 
 <script setup lang="ts">
 import { AutocompleteNew, SearchComplete, UserAvatar } from "@/components";
+import { useView } from "@/composables/useView";
 import { useAuthStore } from "@/stores/auth";
 import { useConfigStore } from "@/stores/config";
 import { useUserStore } from "@/stores/user";
@@ -115,6 +116,7 @@ const { getUser } = useUserStore();
 const { updateOnboardingStep } = useOnboarding("helpdesk");
 const { isManager } = useAuthStore();
 const { teamRestrictionApplied, assignWithinTeam } = useConfigStore();
+const { loadPublicTicketViewCounts } = useView("HD Ticket");
 
 const error = ref("");
 
@@ -130,6 +132,9 @@ const addAssignee = (value) => {
     },
     onSuccess: () => {
       emit("update");
+      if (props.doctype === "HD Ticket") {
+        loadPublicTicketViewCounts(true);
+      }
       if (isManager) {
         updateOnboardingStep("assign_to_agent");
       }
@@ -150,6 +155,9 @@ const removeCurrentAssignee = (value) => {
     },
     onSuccess: () => {
       emit("update");
+      if (props.doctype === "HD Ticket") {
+        loadPublicTicketViewCounts(true);
+      }
       members.value.push({
         label: value,
         value: value,
